@@ -247,3 +247,12 @@ func CheckLogin(ctx *gin.Context) {
 		"username": userinfo.UserName,
 	})
 }
+
+func LoginOut(ctx *gin.Context) {
+	s := sessions.Default(ctx)
+	s.Delete("phoneNumber")
+	s.Save()
+	ctx.JSON(200, gin.H{
+		"message": "退出成功",
+	})
+}

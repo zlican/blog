@@ -19,6 +19,7 @@ func SetupRouter(r *gin.Engine) {
 			bv1home.POST("/register", controller.PostRegister)
 			bv1home.POST("/login", controller.PostLogin)
 			bv1home.GET("/checkLogin", controller.CheckLogin)
+			bv1home.GET("/logout", controller.LoginOut)
 		}
 
 		bv1arti := bv1.Group("/articles")

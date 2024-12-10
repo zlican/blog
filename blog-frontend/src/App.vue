@@ -1,9 +1,19 @@
 <template>
   <div class="app-container" :class="{ 'dark': isDark }">
-    <nav class="navbar">
+    <nav class="navbar" :class="{ 'hidden': !showNavbar }">
       <div class="nav-brand">
         <router-link to="/" class="brand-link">zlican's Blog</router-link>
+                                <!-- 管理员入口按钮 -->
+    <router-link to="/admin" class="admin-link">
+      <button class="admin-btn">
+        <span class="admin-icon">👨‍💻</span>
+        <span class="admin-text">管理员入口</span>
+      </button>
+    </router-link>
       </div>
+
+
+
       <div class="nav-links">
         <router-link to="/home" class="nav-link" exact>首页</router-link>
         <router-link to="/computer" class="nav-link" exact>计算机基础</router-link>
@@ -19,13 +29,7 @@
       </div>
     </nav>
 
-    <!-- 管理员入口按钮 -->
-    <router-link to="/admin" class="admin-link">
-      <button class="admin-btn">
-        <span class="admin-icon">👨‍💻</span>
-        <span class="admin-text">管理员入口</span>
-      </button>
-    </router-link>
+
 
     <main class="main-content" v-if="$route.path.startsWith('/')">
       <router-view v-slot="{ Component }">
@@ -59,9 +63,16 @@ export default {
   setup() {
     const { isDark, toggleTheme } = useTheme()
     const showBackToTop = ref(false)
+    const showNavbar = ref(true)
+    let lastScrollY = 0
     
     const handleScroll = () => {
       showBackToTop.value = window.scrollY > 300
+      
+      // 控制导航栏显示/隐藏
+      const currentScrollY = window.scrollY
+      showNavbar.value = currentScrollY < lastScrollY || currentScrollY < 50
+      lastScrollY = currentScrollY
     }
 
     const scrollToTop = () => {
@@ -83,7 +94,8 @@ export default {
       isDark,
       toggleTheme,
       showBackToTop,
-      scrollToTop
+      scrollToTop,
+      showNavbar
     }
   }
 }
@@ -162,9 +174,8 @@ body {
 
 /* 管理员入口按钮样式 */
 .admin-link {
-  position: fixed;
-  top: 5rem;
-  right: 1rem;
+  display: flex;
+  margin-left: 20px;
   z-index: 99;
   text-decoration: none;
 }
@@ -201,19 +212,32 @@ body {
 }
 
 .navbar {
-  padding: 1rem 2rem;
+  padding: 0.7rem 2rem;
   background-color: var(--bg-secondary);
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--shadow-md);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   backdrop-filter: blur(8px);
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.navbar.hidden {
+  transform: translateY(-100%);
+}
+
+.nav-brand {
+  display: flex;
 }
 
 .nav-brand .brand-link {
+  display: flex;
   font-size: 1.75rem;
   font-weight: 800;
   color: var(--primary-color);
@@ -288,10 +312,11 @@ body {
 }
 
 .main-content {
+  margin-top: 2rem;
   flex: 1;
   padding: 2rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 4rem auto 0;
   width: 100%;
   animation: fadeIn 0.5s ease-out;
 }

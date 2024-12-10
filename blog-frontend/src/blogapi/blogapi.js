@@ -94,6 +94,12 @@ export const blogapi = {
             method: 'GET'
         })
     },
+    logout(){
+        return request({
+            url: "/home/logout",
+            method: 'GET'
+        })
+    },
 
 
     // 获取文章详情

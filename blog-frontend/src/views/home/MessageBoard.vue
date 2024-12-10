@@ -10,18 +10,32 @@
           <button class="auth-btn register-btn">注册</button>
         </router-link>
       </div>
-      <div v-else class="user-info">
+      <div v-else class="user-info" @click="showDropdown = !showDropdown">
         <div class="user-info-content">
           <i class="fas fa-user-circle user-icon"></i>
           <span class="welcome">欢迎, {{ username }}</span>
           <div class="user-status-dot"></div>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
+        </div>
+        
+        <!-- 下拉菜单 -->
+        <div v-if="showDropdown" class="dropdown-menu" @click.stop>
+          <router-link to="/user/profile" class="dropdown-item">
+            <i class="fas fa-user"></i>
+            个人中心
+          </router-link>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" @click="handleLogout">
+            <i class="fas fa-sign-out-alt"></i>
+            退出登录
+          </div>
         </div>
       </div>
     </div>
     
     <!-- 发表留言区域 -->
     <div class="post-message">
-      <textarea 
+        <textarea 
         v-model="newMessage" 
         placeholder="写下你的留言..."
         class="message-input"
@@ -85,6 +99,7 @@ export default {
   data() {
     return {
       username: '',
+      showDropdown: false,
       messages: [
         {
           id: 1,
@@ -131,6 +146,16 @@ export default {
         console.error('检查登录状态失败:', error)
       }
     },
+    async handleLogout() {
+      try {
+        await blogapi.logout() // 发送退出请求到后端
+        sessionStorage.clear() // 清除session缓存
+        this.username = ''
+        this.$router.push('/home/login')
+      } catch (error) {
+        console.error('退出登录失败:', error)
+      }
+    },
     async fetchMessages() {
       try {
         const response = await blogapi.checkLogin()
@@ -162,6 +187,14 @@ export default {
   created() {
     this.checkLoginStatus()
     this.fetchMessages()
+  },
+  mounted() {
+    // 点击页面其他地方关闭下拉菜单
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.user-info')) {
+        this.showDropdown = false
+      }
+    })
   }
 }
 </script>
@@ -176,6 +209,8 @@ export default {
 }
 
 .message-board-header {
+  position: relative;
+  z-index: 3;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -193,6 +228,8 @@ export default {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
   transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
 }
 
 .user-info:hover {
@@ -204,6 +241,68 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+}
+
+.dropdown-icon {
+  color: white;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.user-info:hover .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  min-width: 150px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 0.3rem 0;
+  z-index: 2;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  padding: 0.5rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4b5563;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  z-index: 2;
+  font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+  background: #f3f4f6;
+  color: #6d28d9;
+}
+
+.dropdown-item i {
+  font-size: 0.9rem;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0.3rem 0;
 }
 
 .user-icon {
@@ -266,7 +365,9 @@ export default {
 .post-message {
   margin-bottom: 1.5rem;
   position: relative;
+  z-index:1;
 }
+
 
 .message-list-container {
   max-height: 500px;
