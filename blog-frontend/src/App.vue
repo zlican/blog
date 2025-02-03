@@ -40,7 +40,9 @@
     </main>
 
     <footer class="footer">
-      <p>© 2024 zlican's Blog. All rights reserved.</p>
+      <p>© 2024 zlican's Blog. All rights reserved | 
+        <a href="https://beian.miit.gov.cn/" target="_blank">许可证编号：闽ICP备2024070697号</a>
+      </p>
     </footer>
 
     <!-- 返回顶部按钮 -->
@@ -332,6 +334,11 @@ body {
 .footer p {
   font-size: 0.875rem;
   opacity: 0.8;
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* 返回顶部按钮样式 */
